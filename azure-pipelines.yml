@@ -1,19 +1,26 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- main
+- '*'
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+jobs:
+- job: 'Build'
+  displayName: 'Build job'
+  
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.x'  # Use the desired Python version
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+  - script: |
+      # Display information about the Python environment
+      python --version
+      pip freeze
+    displayName: 'Show Python environment'
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      targetPath: '$(System.DefaultWorkingDirectory)'
+      artifact: 'python-artifact'
+    displayName: 'Publish pipeline artifact'
