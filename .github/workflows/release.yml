@@ -1,23 +1,25 @@
-name: Move to Acc Branch
+name: Release Pipeline
 
 on:
   pull_request:
-    types:
-      - closed
+    branches:
+      - main
+      - 'acc'
+      - 'test'
 
 jobs:
-  move_to_acc:
+  trigger_release:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Move changes to acc branch
-      if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'test'
+    - name: Trigger release pipeline on PR approval
+      if: github.event.review.state == 'approved'
+      env:
+        AZURE_DEVOPS_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }}
       run: |
-        git checkout acc
-        git merge --no-ff --no-commit test
-        # Resolve any merge conflicts if needed
-        git commit -m "Merge changes from test to acc branch"
-        git push origin acc
+        az extension add --name azure-devops
+        az pipelines run --name "git PR pipeline" --org "https://dev.azure.com/tejagondhi" --project 
+        "Az2Git" --branch $(echo $GITHUB_REF | awk -F/ '{print $NF}')
