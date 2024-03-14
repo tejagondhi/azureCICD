@@ -1,9 +1,11 @@
 name: Release Pipeline
 
 on:
-  pull_request_review:
-    types:
-      - submitted
+  pull_request:
+    branches:
+      - main
+      - 'acc'
+      - 'test'
 
 jobs:
   trigger_release:
@@ -18,6 +20,12 @@ jobs:
       env:
         AZURE_DEVOPS_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }}
       run: |
+        # Print current working directory for debugging
+        echo "Current Directory: $PWD"
+        
+        # Set the correct path to the Git repository
+        cd $GITHUB_WORKSPACE
+
+        # Execute Azure DevOps CLI commands
         az extension add --name azure-devops
-        az pipelines run --name "git PR pipeline" --org "https://dev.azure.com/tejagondhi" --project 
-        "Az2Git" --branch $(echo $GITHUB_REF | awk -F/ '{print $NF}')
+        az pipelines run --name "git PR pipeline" --org "https://dev.azure.com/tejagondhi" --project "Az2Git" --branch $(echo $GITHUB_REF | awk -F/ '{print $NF}')
