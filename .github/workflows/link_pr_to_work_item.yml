@@ -1,0 +1,27 @@
+name: Link PR to Work Item
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  link-work-item:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Extract work item number from PR description
+        id: extract-work-item
+        run: |
+          echo "::set-output name=work_item::$(grep -o 'AB#[0-9]\+' $GITHUB_EVENT_PATH | head -1 | cut -c 4-)"
+
+      - name: Link PR to Work Item
+        uses: tejagondhi/azureCICD@main
+        with:
+          work-item: ${{ steps.extract-work-item.outputs.work_item }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          azure-devops-token: ${{ secrets.AZURE_DEVOPS_TOKEN }}
+          organization-name: tejagondhi
+          project-name: tejuCICD
