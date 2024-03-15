@@ -1,6 +1,6 @@
 # Databricks notebook source
 print("hello")
 print("triggertest")
-#ok
+print("ok")
 # COMMAND ----------
 
